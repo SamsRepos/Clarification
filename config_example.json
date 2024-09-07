@@ -1,0 +1,6 @@
+{
+    "model": "meta-llama",
+    "max_new_tokens": 1024,
+    "temperature": 0.7,
+    "hf_access_token": "<your huggingface access token>"
+}

@@ -1,0 +1,8 @@
+{
+    "context_files": [
+        "README.md",
+        "docs/architecture.md",
+        "src/main.cpp",
+        "CMakeLists.txt"
+    ]
+}
