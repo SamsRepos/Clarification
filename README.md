@@ -1,6 +1,8 @@
+# Clarification
+
 Transforms command line output into a clearer, more readable format, with AI 
 
-# Clarification Tool Setup
+## Setup
 
 Add the Clarification directory to PATH (Windows)
 
