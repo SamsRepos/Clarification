@@ -12,6 +12,6 @@ In the Clarification directory, set up a config.json (see config_example.json)
 
 Optionally, in your project, set up clarification_context.json (see clarification_context_example.json)
 
-## Verifying the Installation
+## Verify the Installation
 
 clarify --help
