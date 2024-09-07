@@ -26,7 +26,7 @@ def print_special(str):
 
 def read_file(file_path):
     full_path = os.path.join(user_dir, file_path)
-    print_info(f"Reading file: {full_path}")
+    print_info(f"  Reading file: {full_path}")
     if os.path.exists(full_path):
         with open(full_path, 'r') as file:
             return file.read()
@@ -86,14 +86,14 @@ def get_ai(ai_type, config):
 
     model_name = model_map.get(ai_type.lower(), 'meta-llama/Meta-Llama-3-8B-Instruct')
 
-    print_info(f"Initialising AI model '{model_name}'...")
+    print_info(f"Initialising AI client (model: '{model_name}', max_new_tokens: {max_new_tokens}, temperature: {temperature})...")
     ai = HuggingFaceAI(
         model_name     = model_name,
         max_new_tokens = max_new_tokens,
         temperature    = temperature,
         access_token   = access_token
     )
-    print_info("AI model initialised")
+    print_info("AI client initialised")
     return ai
 
 def run_command(command, suppress_output=False):
@@ -151,7 +151,7 @@ def main():
     ai.add_to_prompt("If provided, also consider the contents of the input file to provide more context in your analysis.\n\n")
     
     if os.path.isfile(os.path.join(user_dir, args.command)):
-        print_info(f"Reading command file: {args.command}")
+        print_info(f"Reading command file...")
         command_file_contents = read_file(args.command)
         if command_file_contents:
             ai.add_to_prompt(f"Input file contents:\n{command_file_contents}\n\n")
