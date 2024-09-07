@@ -43,6 +43,32 @@ def load_config():
             print(f"Error parsing configuration file at {config_path}. Using default values.")
     return {}
 
+def parse_arguments(config):
+    class CustomArgumentParser(argparse.ArgumentParser):
+        def format_help(self):
+            help_text = """
+Usage: clarify [OPTIONS] COMMAND
+
+Run a command and get AI-enhanced output.
+
+Options:
+  --model MODEL    Specify AI model to use (default: meta-llama)
+  --suppress-raw   Suppress raw output before AI analysis
+  -h, --help       Show this help message and exit
+
+Arguments:
+  COMMAND          The command to execute (e.g., a .bat file)
+"""
+            return help_text
+
+    parser = CustomArgumentParser(add_help=False)
+    parser.add_argument("command", type=str, help="The command to execute (e.g., a .bat file)")
+    parser.add_argument("--model", type=str, default=config.get('model', 'meta-llama'), help="Specify AI model to use")
+    parser.add_argument("--suppress-raw", action="store_true", help="Suppress raw output before AI analysis")
+    parser.add_argument('-h', '--help', action='help', default=argparse.SUPPRESS, help='Show this help message and exit')
+    
+    return parser.parse_args()
+
 def read_context_files(context_json_path):
     print_info(f"Reading context files (specified in {context_json_path})...")
     try:
@@ -137,12 +163,7 @@ def run_command(command, suppress_output=False):
 def main():
     config = load_config()
     
-    parser = argparse.ArgumentParser(description="Run a command and get AI-enhanced output.")
-    parser.add_argument("command", type=str, help="The command to execute (e.g., a .bat file)")
-    parser.add_argument("--model", type=str, default=config.get('model', 'meta-llama'), help="Specify AI model to use")
-    parser.add_argument("--suppress-raw", action="store_true", help="Suppress raw output before AI analysis")
-    
-    args = parser.parse_args()
+    args = parse_arguments(config)
 
     ai = get_ai(args.model, config)
     
