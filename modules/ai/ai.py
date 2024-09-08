@@ -1,7 +1,7 @@
 # Base AI interaction class
 class AI:
     def __init__(self, max_new_tokens, temperature):
-        self.prompt      = ""
+        self.prompt          = ""
         self.max_new_tokens  = max_new_tokens
         self.temperature     = temperature
 

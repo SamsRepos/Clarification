@@ -169,8 +169,11 @@ def main():
     
     ai.add_to_prompt("You are an AI assistant tasked with clarifying command outputs. ")
     ai.add_to_prompt("Your goal is to interpret the command output and present it in a human-readable form. ")
-    ai.add_to_prompt("If provided, also consider the contents of the input file to provide more context in your analysis.\n\n")
+    ai.add_to_prompt("If provided, also consider the contents of the input file and context files to provide more context in your analysis.")
+    ai.add_to_prompt("If the command output seems to indicate an error, please clarify what the error is and suggest a solution to the problem.")
+    ai.add_to_prompt("Please do not offer further assistance at the end of your response.\n\n")
     
+    ai.add_to_prompt(f"Command:\n{args.command}\n\n")
     if os.path.isfile(os.path.join(user_dir, args.command)):
         print_info(f"Reading command file...")
         command_file_contents = read_file(args.command)
