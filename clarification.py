@@ -1,28 +1,13 @@
 import subprocess
 import argparse
 import os
-import colorama
 import json
-import sys
-from modules.ai.huggingface_ai import HuggingFaceAI
 
-colorama.init()
+from modules.ai.huggingface_ai import HuggingFaceAI
+from modules.util.print_util import print_info, print_raw, print_special
 
 user_dir          = os.getcwd()
 clarification_dir = os.path.dirname(os.path.realpath(__file__))
-
-def print_info(str):
-    print(f"{colorama.Fore.YELLOW}{str}{colorama.Style.RESET_ALL}")
-
-def print_raw(str, is_error=False):
-    str = str.rstrip('\n')
-    if is_error:
-        print(f"{colorama.Fore.RED}{str}{colorama.Style.RESET_ALL}")
-    else:
-        print(f"{colorama.Fore.LIGHTBLACK_EX}{str}{colorama.Style.RESET_ALL}")
-
-def print_special(str):
-    print(f"{colorama.Fore.CYAN}{str}{colorama.Style.RESET_ALL}")
 
 def read_file(file_path):
     full_path = os.path.join(user_dir, file_path)
@@ -155,7 +140,6 @@ def run_command(command, suppress_output=False):
     except Exception as e:
         return None, f"An error occurred while running the command: {e}"
     finally:
-        # Change back to the Clarification script's directory
         os.chdir(clarification_dir)
 
 
