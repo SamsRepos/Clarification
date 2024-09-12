@@ -176,7 +176,7 @@ def main():
             ai.add_to_prompt(f"Context files contents:\n{context_files_contents}\n\n")
     
     if args.user_message:
-        ai.add_to_prompt(f"Additional user message: {args.user_message}\n\n")
+        ai.add_to_prompt(f"Additional user message:\n{args.user_message}\n\n")
 
     stdout, stderr = run_command(command=args.command, suppress_output=args.suppress_raw)
 
