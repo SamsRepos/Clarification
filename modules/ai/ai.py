@@ -8,6 +8,9 @@ class AI:
     def add_to_prompt(self, new_content):
         self.prompt += new_content + "\n"
 
+    def get_prompt(self):
+        return self.prompt
+
     def clear_prompt(self):
         self.prompt = ""
 

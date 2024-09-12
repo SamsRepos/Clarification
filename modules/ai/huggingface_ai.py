@@ -13,6 +13,7 @@ class HuggingFaceAI(AI):
     def print_response(self):
         full_prompt = f"{self.prompt}\n\nResponse:"
         response_started = False
+        response = []
         for token in self.client.text_generation(
             prompt          = full_prompt,
             max_new_tokens  = self.max_new_tokens,
@@ -24,4 +25,6 @@ class HuggingFaceAI(AI):
                 response_started = True
             if not response_started:
                 continue
+            response.append(token)
             print(token, end='', flush=True)
+        return ''.join(response)

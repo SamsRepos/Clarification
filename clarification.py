@@ -37,21 +37,27 @@ Usage: clarify [OPTIONS] COMMAND
 Run a command and get AI-enhanced output.
 
 Options:
-  --model MODEL    Specify AI model to use (default: meta-llama)
-  --suppress-raw   Suppress raw output before AI analysis
-  -h, --help       Show this help message and exit
+  -m, --model MODEL       Specify AI model to use (default: meta-llama)
+  -t, --temperature TEMP  Set the temperature for AI generation (default: 0.7)
+  -l, --log               Enable logging and specify the log file name
+  -u, --user-message      Provide an additional user message for the AI analysis
+  -s, --suppress-raw      Suppress raw output before AI analysis
+  -h, --help              Show this help message and exit
 
 Arguments:
-  COMMAND          The command to execute (e.g., a .bat file)
+  COMMAND                 The command to execute (e.g., a .bat file)
 """
             return help_text
 
     parser = CustomArgumentParser(add_help=False)
-    parser.add_argument("command", type=str, help="The command to execute (e.g., a .bat file)")
-    parser.add_argument("--model", type=str, default=config.get('model', 'meta-llama'), help="Specify AI model to use")
-    parser.add_argument("--suppress-raw", action="store_true", help="Suppress raw output before AI analysis")
+    parser.add_argument('command', type=str, help="The command to execute (e.g., a .bat file)")
+    parser.add_argument('-m', '--model', type=str, default=config.get('model', 'meta-llama'), help="Specify AI model to use")
+    parser.add_argument('-t', '--temperature', type=float, default=config.get('temperature', 0.7), help="Set the temperature for AI generation")
+    parser.add_argument('-l', '--log', type=str, help="Enable logging and specify the log file name")
+    parser.add_argument('-u', '--user-message', type=str, help="Provide an additional user message for the AI analysis")
+    parser.add_argument('-s', '--suppress-raw', action="store_true", help="Suppress raw output before AI analysis")
     parser.add_argument('-h', '--help', action='help', default=argparse.SUPPRESS, help='Show this help message and exit')
-    
+
     return parser.parse_args()
 
 def read_context_files(context_json_path):
@@ -76,10 +82,9 @@ def read_context_files(context_json_path):
         print(f"Unexpected error reading context files: {e}")
     return ""
 
-def get_ai(ai_type, config):
+def get_ai(model, temperature, config):
     access_token   = config.get('hf_access_token')
     max_new_tokens = config.get('max_new_tokens', 1024)
-    temperature    = config.get('temperature', 0.7)
 
     model_map = {
         "distilgpt2": "distilgpt2",
@@ -95,7 +100,7 @@ def get_ai(ai_type, config):
         "pythia":     "EleutherAI/pythia-410m"
     }
 
-    model_name = model_map.get(ai_type.lower(), 'meta-llama/Meta-Llama-3-8B-Instruct')
+    model_name = model_map.get(model.lower(), 'meta-llama/Meta-Llama-3-8B-Instruct')
 
     print_info(f"Initialising AI client (model: '{model_name}', max_new_tokens: {max_new_tokens}, temperature: {temperature})...")
     ai = HuggingFaceAI(
@@ -149,7 +154,7 @@ def main():
     
     args = parse_arguments(config)
 
-    ai = get_ai(args.model, config)
+    ai = get_ai(args.model, args.temperature, config)
     
     ai.add_to_prompt("You are an AI assistant tasked with clarifying command outputs. ")
     ai.add_to_prompt("Your goal is to interpret the command output and present it in a human-readable form. ")
@@ -170,6 +175,9 @@ def main():
         if context_files_contents:
             ai.add_to_prompt(f"Context files contents:\n{context_files_contents}\n\n")
     
+    if args.user_message:
+        ai.add_to_prompt(f"Additional user message: {args.user_message}\n\n")
+
     stdout, stderr = run_command(command=args.command, suppress_output=args.suppress_raw)
 
     if stdout:
@@ -180,9 +188,23 @@ def main():
     ai.add_to_prompt("Please provide a clear, concise interpretation of this output in human-readable form.")
 
     print_special("AI Analysis:")
-    ai.print_response()
+    response = ai.print_response()
     print()
     print_special("End of AI Analysis")
+
+    if args.log:
+        log_file_path = os.path.join(user_dir, args.log)
+        with open(log_file_path, 'w', encoding='utf-8') as log_file:
+            log_file.write("*" * 50 + "\n")
+            log_file.write("*" * 19 + " AI Prompt " + "*" * 20 + "\n")
+            log_file.write("*" * 50 + "\n\n")
+            log_file.write(ai.get_prompt())
+            log_file.write("\n\n" + "*" * 50 + "\n")
+            log_file.write("*" * 18 + " AI Response " + "*" * 19 + "\n")
+            log_file.write("*" * 50 + "\n\n")
+            log_file.write(response)
+        print_info(f"Log written to: {log_file_path}")
+
     ai.clear_prompt()
 
 if __name__ == "__main__":
